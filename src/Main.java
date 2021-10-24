@@ -25,6 +25,7 @@ public class Main
 
         Scanner scanner = new Scanner(System.in);
         System.out.println("Добро пожаловать на нашу АЗС!");
+        printHelp();
 
         // Цикл запросов
         do
@@ -36,6 +37,10 @@ public class Main
             // Определние команд в запросе
             switch(commandParser(request))
             {
+                // вывод помощи
+                case 3:
+                    printHelp();
+                    break;
                 // Вывод остатка топлива в резервуарах
                 case 2:
                     GasStation.getTanksRem();
@@ -100,6 +105,10 @@ public class Main
         pattern = Pattern.compile("\\b[Оо]{1}статок\\b");
         matcher = pattern.matcher(_request);
         if (matcher.find()) return 2;
+
+        pattern = Pattern.compile("\\b[Hh]{1}elp\\b");
+        matcher = pattern.matcher(_request);
+        if (matcher.find()) return 3;
 
         return -1;
     }
@@ -167,6 +176,19 @@ public class Main
 
         }
         return resultArr;
+    }
+
+    private static void printHelp()
+    {
+        System.out.println("1) Для заправки введите запрос вида: \"<n>-я колонка <марка топлива> <n> литров\";\n" +
+                           "2) Для пополнения резервуара задайте запрос вида: \"Пополнение резервуара <марка топлива> на <n> литров\";\n" +
+                           "Доступные марки топлива - \"Аи-92\" и \"Аи-95\";\n" +
+                           "Количество колонок - 4;\n" +
+                           "3) Для вывода остатков топлива в резервуарах введите \"Остаток\";\n" +
+                           "4) Для вывода лога введите \"Лог\";\n" +
+                           "5) Для помощи введите \"Help\";\n" +
+                           "6) Для выхода введите \"Выход\" или \"0\"\n");
+
     }
 
 

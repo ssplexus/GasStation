@@ -55,25 +55,7 @@ public class Main
                     break;
                 // Заправка или пополнение резервуара
                 default:
-                    // Регистрация запроса в журнале действий
-                    GasStation.stationLogger(request);
-                    // Разбор запроса и получение аргументов
-                    int[] resArr = stationRequestParser(request);
-                    // Флаг корректности запроса
-                    boolean isCorrect = false;
-                    // Если номер колонки не определён значит это пополнение резервуара
-                    if(resArr[1] == 0)
-                    {
-                        isCorrect = GasStation.tankFilling(resArr);
-                    }
-                    else
-                    {
-                        // Заправка
-                        if(resArr[1] <= Array.getLength(station))
-                            isCorrect = station[resArr[1] - 1].gasFilling(resArr);
-                    }
-
-                    if(!isCorrect)
+                    if(!gasStationRefill(station, request))
                     {
                         GasStation.stationLogger("Неверный запрос\n");
                         System.out.println("Неверный запрос");
@@ -91,6 +73,7 @@ public class Main
      * 0 - выход из программы
      * 1 - вывести журнал
      * 2 - вывести остаток топлива в резервуарах
+     * 3 - вывести помощь
      */
     private static int commandParser(String _request)
     {
@@ -129,9 +112,9 @@ public class Main
         // Флаг запроса пополнения резервуара
         boolean isRefillTank = false;
 
-        String stationRequest = new String(_request);
+        String stationRequest = _request;
 
-        Pattern pattern = Pattern.compile("\\b[Аа]и-{0,1}9(2|5)\\b");
+        Pattern pattern = Pattern.compile("\\b[Аа]и-{0,1}9([25])\\b");
         Matcher matcher = pattern.matcher(stationRequest);
 
         if (matcher.find())
@@ -151,10 +134,7 @@ public class Main
         matcher = pattern.matcher(stationRequest);
 
         if (isRefillTank)
-        {
-            resultArr[resNum++] = 0;
             resultArr[resNum] = (matcher.find()) ? Integer.parseInt(stationRequest.substring(matcher.start(), matcher.end())) : 0;
-        }
         else
         {
             while (matcher.find() && resNum < 3)
@@ -178,18 +158,40 @@ public class Main
         return resultArr;
     }
 
-    private static void printHelp()
+    private static boolean gasStationRefill(GasStation[]station, String request)
     {
-        System.out.println("1) Для заправки введите запрос вида: \"<n>-я колонка <марка топлива> <n> литров\";\n" +
-                           "2) Для пополнения резервуара задайте запрос вида: \"Пополнение резервуара <марка топлива> на <n> литров\";\n" +
-                           "Доступные марки топлива - \"Аи-92\" и \"Аи-95\";\n" +
-                           "Количество колонок - 4;\n" +
-                           "3) Для вывода остатков топлива в резервуарах введите \"Остаток\";\n" +
-                           "4) Для вывода лога введите \"Лог\";\n" +
-                           "5) Для помощи введите \"Help\";\n" +
-                           "6) Для выхода введите \"Выход\" или \"0\"\n");
-
+        // Регистрация запроса в журнале действий
+        GasStation.stationLogger(request);
+        // Разбор запроса и получение аргументов
+        int[] resArr = stationRequestParser(request);
+        // Если номер колонки не определён значит это пополнение резервуара
+        if(resArr[1] == 0)
+        {
+            return GasStation.tankFilling(resArr);
+        }
+        else
+        {
+            // Заправка
+            if(resArr[1] <= Array.getLength(station))
+                return station[resArr[1] - 1].gasFilling(resArr);
+        }
+        return false;
     }
 
+    /**
+     * Метод вывода помощи
+     */
+    private static void printHelp()
+    {
+        System.out.println(new StringBuilder().
+                append("1) Для заправки введите запрос вида: \"<n>-я колонка <марка топлива> <n> литров\";\n").
+                append("2) Для пополнения резервуара задайте запрос вида: \"Пополнение резервуара <марка топлива> на <n> литров\";\n").
+                append("Доступные марки топлива - \"Аи-92\" и \"Аи-95\";\n").
+                append("Количество колонок - 4;\n").
+                append("3) Для вывода остатков топлива в резервуарах введите \"Остаток\";\n").
+                append("4) Для вывода лога введите \"Лог\";\n").
+                append("5) Для помощи введите \"Help\";\n").
+                append("6) Для выхода введите \"Выход\" или \"0\"\n"));
 
+    }
 }
